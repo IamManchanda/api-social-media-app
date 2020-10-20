@@ -2,12 +2,57 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { UserInputError } = require("apollo-server");
 
-const { validateRegisterOptions } = require("../../utils/validators");
+const {
+  validateRegisterOptions,
+  validateLoginOptions,
+} = require("../../utils/validators");
 const User = require("../../models/user");
 const { JWT_SECRET } = process.env;
 
+function generateToken(user) {
+  return jwt.sign(
+    {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+    },
+    JWT_SECRET,
+    {
+      expiresIn: "1h",
+    },
+  );
+}
+
 module.exports = {
   Mutation: {
+    login: async (_parent, { options }, _context, _info) => {
+      const { username, password } = options;
+
+      const { valid, errors } = validateLoginOptions(username, password);
+      if (!valid) {
+        throw new UserInputError("Validation Errors", { errors });
+      }
+
+      const user = await User.findOne({ username });
+      if (!user) {
+        errors.general = "User not found";
+        throw new UserInputError("User not found", { errors });
+      }
+
+      const match = await bcrypt.compare(password, user.password);
+      if (!match) {
+        errors.general = "Wrong Credentials";
+        throw new UserInputError("Wrong Credentials", { errors });
+      }
+
+      const token = generateToken(user);
+
+      return {
+        ...user._doc,
+        id: user._id,
+        token,
+      };
+    },
     register: async (_parent, { options }, _context, _info) => {
       const { email, username, password, confirmPassword } = options;
 
@@ -40,17 +85,7 @@ module.exports = {
       });
 
       const result = await newUser.save();
-      const token = await jwt.sign(
-        {
-          id: result.id,
-          email: result.email,
-          username: result.username,
-        },
-        JWT_SECRET,
-        {
-          expiresIn: "1h",
-        },
-      );
+      const token = generateToken(result);
 
       return {
         ...result._doc,

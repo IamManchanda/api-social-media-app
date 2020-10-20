@@ -23,11 +23,17 @@ module.exports = gql`
     confirmPassword: String!
   }
 
+  input LoginOptions {
+    username: String!
+    password: String!
+  }
+
   type Query {
     getPosts: [Post]
   }
 
   type Mutation {
     register(options: RegisterOptions): User!
+    login(options: LoginOptions): User!
   }
 `;
