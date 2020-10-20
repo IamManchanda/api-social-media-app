@@ -1,0 +1,16 @@
+{
+  "name": "api-social-media-app",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "dev": "nodemon -r dotenv/config ./src/index.js",
+    "start": "node ./src/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "dotenv": "^8.2.0",
+    "nodemon": "^2.0.6"
+  }
+}
