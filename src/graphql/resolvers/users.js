@@ -77,7 +77,7 @@ module.exports = {
 
       const hashedPassword = await bcrypt.hash(password, 12);
 
-      const newUser = await new User({
+      const newUser = new User({
         email,
         username,
         password: hashedPassword,

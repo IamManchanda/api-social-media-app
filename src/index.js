@@ -9,6 +9,7 @@ const { DATABASE_NAME, DATABASE_USERNAME, DATABASE_PASSWORD } = process.env;
 const server = new ApolloServer({
   typeDefs,
   resolvers,
+  context: ({ req }) => ({ req }),
 });
 
 mongoose
