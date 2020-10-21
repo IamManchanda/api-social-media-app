@@ -1,4 +1,4 @@
-const { ApolloServer } = require("apollo-server");
+const { ApolloServer, PubSub } = require("apollo-server");
 const mongoose = require("mongoose");
 
 const typeDefs = require("./graphql/type-defs");
@@ -6,10 +6,12 @@ const resolvers = require("./graphql/resolvers");
 
 const { DATABASE_NAME, DATABASE_USERNAME, DATABASE_PASSWORD } = process.env;
 
+const pubsub = new PubSub();
+
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: ({ req }) => ({ req }),
+  context: ({ req }) => ({ req, pubsub }),
 });
 
 mongoose
